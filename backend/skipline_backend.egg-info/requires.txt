@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+sqlalchemy>=2.0
+aiosqlite
+pydantic
+pydantic-settings
+httpx
+sentry-sdk[fastapi,sqlalchemy]
+greenlet>=3.0

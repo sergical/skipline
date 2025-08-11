@@ -1,0 +1,19 @@
+[project]
+name = "skipline-backend"
+version = "0.1.0"
+description = "Skipline backend FastAPI demo for performance tracing"
+requires-python = ">=3.10"
+dependencies = [
+  "fastapi",
+  "uvicorn[standard]",
+  "sqlalchemy>=2.0",
+  "aiosqlite",
+  "pydantic",
+  "pydantic-settings",
+  "httpx",
+  "sentry-sdk[fastapi,sqlalchemy]",
+  "greenlet>=3.0",
+]
+
+[tool.uv]
+# if using uv, otherwise can ignore

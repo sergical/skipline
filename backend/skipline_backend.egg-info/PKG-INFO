@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: skipline-backend
+Version: 0.1.0
+Summary: Skipline backend FastAPI demo for performance tracing
+Requires-Python: >=3.10
+Requires-Dist: fastapi
+Requires-Dist: uvicorn[standard]
+Requires-Dist: sqlalchemy>=2.0
+Requires-Dist: aiosqlite
+Requires-Dist: pydantic
+Requires-Dist: pydantic-settings
+Requires-Dist: httpx
+Requires-Dist: sentry-sdk[fastapi,sqlalchemy]
+Requires-Dist: greenlet>=3.0
