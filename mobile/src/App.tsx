@@ -8,12 +8,19 @@ import DeveloperScreen from '@/screens/DeveloperScreen'
 import * as Sentry from '@sentry/react-native'
 import { colors } from '@/theme'
 
+const SENTRY_DSN = process.env.SENTRY_DSN
+
 Sentry.init({
-  dsn: '', // set via wizard or env
+  dsn: SENTRY_DSN,
   tracesSampleRate: 1.0,
+  profilesSampleRate: 1.0,
   enableAutoPerformanceTracing: true,
-  enableNetworkTracking: true,
   tracePropagationTargets: [/localhost:\\d+/, /127.0.0.1/],
+  _experiments: { enableLogs: true },
+  // Replay
+  replaysSessionSampleRate: 1.0,
+  replaysOnErrorSampleRate: 1.0,
+  integrations: [Sentry.mobileReplayIntegration()],
 })
 
 const Stack = createNativeStackNavigator()
@@ -31,7 +38,7 @@ const appTheme: Theme = {
   },
 }
 
-export default function App() {
+export default Sentry.wrap(function App() {
   return (
     <NavigationContainer theme={appTheme}>
       <Stack.Navigator>
@@ -42,4 +49,4 @@ export default function App() {
       </Stack.Navigator>
     </NavigationContainer>
   )
-}
+});
