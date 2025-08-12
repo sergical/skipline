@@ -1,7 +1,44 @@
-.venv/
-__pycache__/
-*.pyc
-backend/skipline.db
-.env
+# OS / Editors
+.DS_Store
+.vscode/
+.idea/
+
+# Node / Expo
 node_modules/
 .expo/
+.expo-shared/
+web-build/
+dist/
+*.log
+
+# Native projects (ignore if not committing prebuild outputs)
+ios/
+android/
+Pods/
+*.xcodeproj
+*.xcworkspace
+*.xcuserdatad/
+.gradle/
+**/build/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage/
+
+# Python packaging artifacts
+build/
+dist/
+**/*.egg-info/
+
+# Env and local DB
+.env
+.env.*
+skipline.db
+backend/skipline.db
