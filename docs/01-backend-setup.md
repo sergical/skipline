@@ -9,6 +9,12 @@ Prereqs: Python 3.10+.
   pip install -e backend
   ```
 
+- Create a `.env` file in the backend directory
+  ```bash
+  cp backend/.env-example backend/.env
+  # Edit backend/.env to set your SENTRY_DSN
+  ```
+
 - Run the API (first run creates SQLite and tables)
   ```bash
   uvicorn app.main:app --reload --app-dir backend
@@ -20,25 +26,25 @@ Prereqs: Python 3.10+.
   ```
 
 - Verify endpoints
-  - v1 products: `GET http://127.0.0.1:8000/api/v1/products`
+  - v1 catalog: `GET http://127.0.0.1:8000/api/v1/catalog`
   - v2 catalog: `GET http://127.0.0.1:8000/api/v2/catalog?include=inventory`
   - v1 checkout: `POST /api/v1/checkout`
   - v2 checkout: `POST /api/v2/checkout`
 
 ### Enable Sentry on backend
 
-- Export DSN (or use wizard):
+- Set up Sentry in your `.env` file:
   ```bash
-  export SENTRY_DSN="https://<dsn>"
-  export SENTRY_TRACES_SAMPLE_RATE=1.0
-  export SENTRY_PROFILES_SAMPLE_RATE=1.0
+  # backend/.env
+  SENTRY_DSN="https://<your-dsn>"
+  ENABLE_SENTRY_LOGS=true  # Optional: Enable Sentry logs
   ```
   Or run wizard:
   ```bash
   sentry-cli wizard -i python
   ```
 
-- Restart server; you should see traces and DB spans.
+- Restart server; you should see traces, DB spans, and logs (if enabled).
 
 ### Scenario headers
 - `X-Scenario: BlackFriday` will add extra latency on shipping/payment.

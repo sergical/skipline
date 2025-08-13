@@ -8,10 +8,12 @@ import { ProductCard } from '@/components/ProductCard';
 import { apiGet, Product } from '../../lib/api';
 import { useCart } from '../../state/useCart';
 import { useThemeColor } from '@/hooks/useThemeColor';
+import * as Sentry from '@sentry/react-native';
 
 export default function HomeScreen() {
   const [products, setProducts] = useState<Product[] | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [loaded, setLoaded] = useState<boolean>(false);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const { add } = useCart();
   const backgroundColor = useThemeColor({}, 'background');
@@ -19,15 +21,28 @@ export default function HomeScreen() {
   const loadProducts = async (isRefresh = false) => {
     if (isRefresh) {
       setRefreshing(true);
+      Sentry.logger.debug('Refreshing product catalog');
     } else {
       setLoading(true);
+      Sentry.logger.debug('Loading product catalog');
     }
     try {
-      const data = await apiGet<Product[]>('/api/v2/catalog?include=inventory');
+      const data = await apiGet<Product[]>('/api/v1/catalog?include=inventory');
       setProducts(data);
+      Sentry.logger.info('Product catalog loaded', {
+        productCount: data.length,
+        isRefresh,
+      });
+    } catch (error) {
+      Sentry.logger.error('Failed to load product catalog', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        isRefresh,
+      });
+      throw error;
     } finally {
       setLoading(false);
       setRefreshing(false);
+      setLoaded(true);
     }
   };
 
@@ -45,6 +60,7 @@ export default function HomeScreen() {
 
   return (
     <ThemedView style={[styles.container, { backgroundColor }]}>
+      <Sentry.TimeToFullDisplay record={loaded} />
       <FlatList
         data={products}
         keyExtractor={(item) => String(item.id)}
@@ -57,7 +73,14 @@ export default function HomeScreen() {
           >
             <ProductCard 
               product={item} 
-              onAddToCart={() => add(item.id, 1)}
+              onAddToCart={() => {
+                add(item.id, 1);
+                Sentry.logger.info('Product added to cart', {
+                  productId: item.id,
+                  productName: item.name,
+                  price: item.price_cents / 100,
+                });
+              }}
             />
           </Animated.View>
         )}

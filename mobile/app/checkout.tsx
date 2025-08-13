@@ -17,6 +17,7 @@ export default function CheckoutScreen() {
   const [result, setResult] = useState<CheckoutResponse | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
+  const [loaded, setLoaded] = useState(false);
   const buttonScale = useSharedValue(1);
   
   const backgroundColor = useThemeColor({}, 'background');
@@ -32,10 +33,13 @@ export default function CheckoutScreen() {
   async function loadProducts() {
     try {
       setLoadingProducts(true);
-      const data = await apiGet<Product[]>('/api/v2/catalog');
+      Sentry.logger.debug('Loading products for checkout cart summary');
+      const data = await apiGet<Product[]>('/api/v1/catalog');
       setProducts(data);
+      Sentry.logger.info('Loaded {count} products for checkout', { count: data.length });
     } finally {
       setLoadingProducts(false);
+      setLoaded(true);
     }
   }
   
@@ -55,19 +59,40 @@ export default function CheckoutScreen() {
   async function onCheckout() {
     setLoading(true);
     setResult(null);
+    buttonScale.value = withTiming(0.97, { duration: 150 });
+    
     try {
       const payload: CheckoutRequest = { ...toCheckoutPayload(email), coupon_code: coupon || null };
-      const res = await apiPost<CheckoutResponse>('/api/v2/checkout', payload);
+      
+      Sentry.logger.info('Starting checkout process', {
+        userEmail: email,
+        itemCount: items.length,
+        subtotal: subtotal / 100,
+        hasCoupon: !!coupon,
+      });
+      
+      const res = await apiPost<CheckoutResponse>('/api/v1/checkout', payload);
       setResult(res);
       clear();
+      
       if (res.trace_id) {
+        Sentry.logger.info('Checkout completed successfully', {
+          orderId: res.order_id,
+          total: res.total_cents / 100,
+          traceId: res.trace_id,
+        });
         Sentry.captureMessage('Checkout succeeded', { level: 'info', extra: { trace_id: res.trace_id } });
       }
     } catch (e: any) {
+      Sentry.logger.error('Checkout failed', {
+        error: e?.message || 'Unknown error',
+        userEmail: email,
+      });
       Sentry.captureException(e);
       Alert.alert('Checkout failed', e?.message ?? 'Unknown error');
     } finally {
       setLoading(false);
+      buttonScale.value = withTiming(1, { duration: 150 });
     }
   }
 
@@ -76,6 +101,7 @@ export default function CheckoutScreen() {
       contentContainerStyle={[styles.container, { backgroundColor }]}
       showsVerticalScrollIndicator={false}
     >
+      <Sentry.TimeToFullDisplay record={loaded} />
       <Animated.View entering={FadeInDown.springify()}>
         <ThemedView style={[styles.card, { backgroundColor: cardBg, borderColor }]}>
           <ThemedText type="subtitle">Order Summary</ThemedText>

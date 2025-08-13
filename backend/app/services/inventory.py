@@ -10,6 +10,10 @@ from ..models import InventoryMovement
 
 async def get_inventory_for_product_naive(session: AsyncSession, product_id: int) -> int:
     # Intentionally naive: sum in Python with multiple round-trips
+    # Simulate network latency for remote database
+    import asyncio
+    await asyncio.sleep(0.05)  # 50ms simulated DB latency
+    
     movements = (await session.execute(select(InventoryMovement).where(InventoryMovement.product_id == product_id))).scalars().all()
     total = 0
     for m in movements:

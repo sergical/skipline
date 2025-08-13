@@ -11,6 +11,7 @@ import { API_BASE_URL } from '../lib/api';
 import { useEffect } from 'react';
 
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
+const ENABLE_SENTRY_LOGS = process.env.EXPO_PUBLIC_ENABLE_SENTRY_LOGS === 'true';
 
 const navigationIntegration = Sentry.reactNavigationIntegration({
   enableTimeToInitialDisplay: !isRunningInExpoGo(),
@@ -25,26 +26,28 @@ Sentry.init({
 
   // Auto performance tracing and fetch/span instrumentation
   enableAutoPerformanceTracing: true,
-  tracesSampleRate: 1.0,
-  profilesSampleRate: 1.0,
+  tracesSampleRate: 1.0, // adjust this in production to lower rates
+  profilesSampleRate: 1.0, // adjust this in production to lower rates
+
+  // Configure trace propagation targets
   tracePropagationTargets: (() => {
     try {
       const u = new URL(API_BASE_URL);
-      return [u.host, /localhost:\\d+/, /127\.0\.0\.1/];
+      return [u.host, /localhost:\d+/, /127\.0\.0\.1/];
     } catch {
-      return [/localhost:\\d+/, /127\.0\.0\.1/];
+      return [/localhost:\d+/, /127\.0\.0\.1/];
     }
   })(),
 
   // Configure Session Replay
-  replaysSessionSampleRate: 1,
+  replaysSessionSampleRate: 1, // adjust this in production to lower rates
   replaysOnErrorSampleRate: 1,
   integrations: [Sentry.mobileReplayIntegration(), Sentry.feedbackIntegration(), navigationIntegration],
 
   // uncomment the line below to enable Spotlight (https://spotlightjs.com)
   // spotlight: __DEV__,
   _experiments: {
-    enableLogs: true,
+    enableLogs: ENABLE_SENTRY_LOGS,
   }
 });
 

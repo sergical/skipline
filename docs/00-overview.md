@@ -1,9 +1,11 @@
 ## Skipline overview
 
-Skipline is a modern e-commerce demo designed to highlight mobile checkout performance, distributed tracing, and span metrics via two API styles:
+Skipline is a modern e-commerce demo designed to highlight mobile checkout performance, distributed tracing, structured logs, and span metrics via two API styles:
 
 - v1 (slow/naive): chatty endpoints, N+1 database patterns, sequential work in checkout.
 - v2 (fast/optimized): hydrated endpoints, aggregated queries, parallelized IO, backgrounded work.
+
+Both v1 and v2 use the same endpoint names (`/catalog` and `/checkout`) for easy switching.
 
 ### Identity
 - Name: Skipline

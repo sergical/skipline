@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import List, Optional
 
 import sentry_sdk
+from sentry_sdk import logger
 from fastapi import APIRouter, Depends, Header, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -31,13 +32,20 @@ async def catalog(
     x_scenario: Optional[str] = Header(default=None, alias="X-Scenario"),
     session: AsyncSession = Depends(get_session),
 ):
+    logger.debug(f"Catalog request: include={include}, category={category}, limit={limit}, offset={offset}")
+    
     q = select(Product)
     if category:
         q = q.where(Product.slug.like(f"{category}-%"))
-    with sentry_sdk.start_span(op="db.query", description="SELECT products") as span:
-        span.set_data("db.system", "sqlite")
-        products = (await session.execute(q.offset(offset).limit(limit))).scalars().all()
+        logger.info(f"Filtering products by category: {category}")
+        
+    products = (await session.execute(q.offset(offset).limit(limit))).scalars().all()
+    
+    logger.info(f"Found {len(products)} products")
+    
     ids = [p.id for p in products]
+    if include and "inventory" in include:
+        logger.info("Using optimized aggregated inventory query for all products at once")
     inventory_map = await get_inventory_for_products_aggregated(session, ids)
     result: List[ProductOut] = []
     for p in products:
@@ -55,9 +63,7 @@ async def checkout(
     # parallelize IO
     subtotal = 0
     product_ids = [i.product_id for i in payload.items]
-    with sentry_sdk.start_span(op="db.query", description="SELECT products by IDs") as span:
-        span.set_data("db.system", "sqlite")
-        products = (await session.execute(select(Product).where(Product.id.in_(product_ids)))).scalars().all()
+    products = (await session.execute(select(Product).where(Product.id.in_(product_ids)))).scalars().all()
     prod_map = {p.id: p for p in products}
 
     # reserve inventory quickly (simulated)
@@ -80,8 +86,7 @@ async def checkout(
     ok, auth_id = await payment_charge(payload.payment_token or "tok_demo", total, x_scenario)
 
     # email offloaded (simulated quick enqueue)
-    with sentry_sdk.start_span(op="email.enqueue", description="enqueue confirmation"):
-        pass
+    pass
 
     trace_id = sentry_sdk.get_current_scope().transaction and sentry_sdk.get_current_scope().transaction.trace_id
 

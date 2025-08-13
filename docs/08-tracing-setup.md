@@ -8,26 +8,23 @@ This document explains how distributed tracing is configured between the mobile 
 ### 1. Sentry Initialization
 ```python
 # app/main.py
+enable_logs = os.getenv("ENABLE_SENTRY_LOGS", "false").lower() == "true"
+
 sentry_sdk.init(
     dsn=dsn,
     traces_sample_rate=1.0,
+    _experiments={
+        "enable_logs": enable_logs,
+    },
     integrations=[
         FastApiIntegration(transaction_style="endpoint"),
-        StarletteIntegration(transaction_style="endpoint"),
         SqlalchemyIntegration(),
     ],
 )
 ```
 
-### 2. Manual Database Spans
-Since async SQLAlchemy doesn't automatically instrument queries, we wrap them manually:
-
-```python
-# app/services/inventory.py
-with sentry_sdk.start_span(op="db.query", description="SELECT products") as span:
-    span.set_data("db.system", "sqlite")
-    products = (await session.execute(query)).scalars().all()
-```
+### 2. Automatic Database Instrumentation
+The `SqlalchemyIntegration` automatically instruments all database queries, including async operations. No manual spans needed!
 
 ### 3. CORS Headers
 Allow trace propagation headers:
@@ -44,11 +41,16 @@ app.add_middleware(
 ### 1. Sentry Initialization
 ```typescript
 // app/_layout.tsx
+const ENABLE_SENTRY_LOGS = process.env.EXPO_PUBLIC_ENABLE_SENTRY_LOGS === 'true';
+
 Sentry.init({
   dsn: SENTRY_DSN,
   enableAutoPerformanceTracing: true,
   tracesSampleRate: 1.0,
   tracePropagationTargets: [API_HOST, /localhost:\\d+/, /127\.0\.0\.1/],
+  _experiments: {
+    enableLogs: ENABLE_SENTRY_LOGS,
+  }
 })
 ```
 
@@ -77,15 +79,16 @@ return Sentry.startSpan(
 4. You should see:
    - Mobile spans (UI interactions, API calls)
    - Backend spans (FastAPI endpoints)
-   - Database spans (SQLite queries)
+   - Database spans (SQLite queries - auto-instrumented)
    - External service spans (shipping, tax, payment)
+   - Associated logs (if enabled) with full context
 
 ## Common Issues
 
 ### Database queries not showing
 - Ensure `SqlalchemyIntegration()` is added
-- Wrap async queries with manual spans
-- Check that spans have proper `op="db.query"`
+- Add `pool_pre_ping=True` to SQLAlchemy engine for async support
+- Check that database operations use SQLAlchemy ORM/Core
 
 ### Traces not connecting
 - Verify `tracePropagationTargets` includes your API host

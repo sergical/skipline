@@ -22,6 +22,9 @@ def init_sentry():
     dsn = os.getenv("SENTRY_DSN")
     if not dsn:
         return
+    
+    enable_logs = os.getenv("ENABLE_SENTRY_LOGS", "false").lower() == "true"
+    
     sentry_sdk.init(
         dsn=dsn,
         # Add data like request headers and IP for users, if applicable;
@@ -38,7 +41,7 @@ def init_sentry():
         profile_lifecycle="trace",
         # Enable logs to be sent to Sentry
         _experiments={
-            "enable_logs": True,
+            "enable_logs": enable_logs,
         },
         integrations=[
             FastApiIntegration(transaction_style="endpoint"),

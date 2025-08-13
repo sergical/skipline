@@ -7,3 +7,4 @@ pydantic-settings
 httpx
 sentry-sdk[fastapi,sqlalchemy]
 greenlet>=3.0
+python-dotenv

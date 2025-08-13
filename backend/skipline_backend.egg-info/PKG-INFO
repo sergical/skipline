@@ -12,3 +12,4 @@ Requires-Dist: pydantic-settings
 Requires-Dist: httpx
 Requires-Dist: sentry-sdk[fastapi,sqlalchemy]
 Requires-Dist: greenlet>=3.0
+Requires-Dist: python-dotenv

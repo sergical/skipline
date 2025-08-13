@@ -27,9 +27,12 @@ Prereqs: Node 18+, Expo CLI.
   ```
 
 - Create env (or use Expo env) in `mobile` with:
-  ```env
+  ```bash
+  cp mobile/.env-example mobile/.env
+  # Edit mobile/.env to set:
   EXPO_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
   EXPO_PUBLIC_SENTRY_DSN=your_dsn
+  EXPO_PUBLIC_ENABLE_SENTRY_LOGS=true  # Optional: Enable Sentry logs
   ```
 
 - (Optional) Developer screen to toggle scenarios. The app can send:
