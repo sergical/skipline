@@ -34,7 +34,9 @@ async def list_products(
     if category:
         # still naive: filter products by slug pattern on product slug
         q = q.where(Product.slug.like(f"{category}-%"))
-    products = (await session.execute(q.offset(offset).limit(limit))).scalars().all()
+    with sentry_sdk.start_span(op="db.query", description="SELECT products") as span:
+        span.set_data("db.system", "sqlite")
+        products = (await session.execute(q.offset(offset).limit(limit))).scalars().all()
 
     result: List[ProductOut] = []
     for p in products:
@@ -53,7 +55,9 @@ async def checkout(
     # naive sequential work
     subtotal = 0
     for item in payload.items:
-        prod = (await session.execute(select(Product).where(Product.id == item.product_id))).scalars().first()
+        with sentry_sdk.start_span(op="db.query", description=f"SELECT product {item.product_id}") as span:
+            span.set_data("db.system", "sqlite")
+            prod = (await session.execute(select(Product).where(Product.id == item.product_id))).scalars().first()
         if not prod:
             continue
         inv = await get_inventory_for_product_naive(session, prod.id)

@@ -39,6 +39,6 @@ dist/
 
 # Env and local DB
 .env
-.env.*
+!.env.example
 skipline.db
 backend/skipline.db

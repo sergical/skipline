@@ -18,22 +18,23 @@ Prereqs: Node 18+, Expo CLI.
 - Configure Sentry in `mobile` entry (created by wizard) and set:
   ```ts
   Sentry.init({
-    dsn: 'https://<dsn>',
+    dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
     tracesSampleRate: 1.0,
     enableAutoPerformanceTracing: true,
-    enableNetworkTracking: true,
+    profilesSampleRate: 1.0,
     tracePropagationTargets: [/localhost:\\d+/, /127.0.0.1/],
   })
   ```
 
-- Create `.env` in `mobile` with:
+- Create env (or use Expo env) in `mobile` with:
   ```env
-  API_URL=http://127.0.0.1:8000
+  EXPO_PUBLIC_API_BASE_URL=http://127.0.0.1:8000
+  EXPO_PUBLIC_SENTRY_DSN=your_dsn
   ```
 
-- Add a Developer screen to toggle API version headers and scenarios. The app should send:
+- (Optional) Developer screen to toggle scenarios. The app can send:
   - `X-Scenario`
-  - `X-Api-Version` (1 or 2) or call different paths `/api/v1` vs `/api/v2`.
+  - Use different paths `/api/v1` vs `/api/v2`.
 
 - Start app
   ```bash

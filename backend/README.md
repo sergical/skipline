@@ -2,6 +2,17 @@
 
 FastAPI backend for the Skipline fast checkout demo.
 
+## Environment Variables
+
+Create a `.env` file in the backend directory:
+
+```bash
+cp .env-example .env
+```
+
+Then edit `.env` with your values:
+- `SENTRY_DSN` - Your Sentry DSN for error tracking and performance monitoring
+
 ## Setup
 
 1. **Create and activate a virtual environment** (from the project root):

@@ -34,7 +34,9 @@ async def catalog(
     q = select(Product)
     if category:
         q = q.where(Product.slug.like(f"{category}-%"))
-    products = (await session.execute(q.offset(offset).limit(limit))).scalars().all()
+    with sentry_sdk.start_span(op="db.query", description="SELECT products") as span:
+        span.set_data("db.system", "sqlite")
+        products = (await session.execute(q.offset(offset).limit(limit))).scalars().all()
     ids = [p.id for p in products]
     inventory_map = await get_inventory_for_products_aggregated(session, ids)
     result: List[ProductOut] = []
@@ -53,7 +55,9 @@ async def checkout(
     # parallelize IO
     subtotal = 0
     product_ids = [i.product_id for i in payload.items]
-    products = (await session.execute(select(Product).where(Product.id.in_(product_ids)))).scalars().all()
+    with sentry_sdk.start_span(op="db.query", description="SELECT products by IDs") as span:
+        span.set_data("db.system", "sqlite")
+        products = (await session.execute(select(Product).where(Product.id.in_(product_ids)))).scalars().all()
     prod_map = {p.id: p for p in products}
 
     # reserve inventory quickly (simulated)

@@ -13,8 +13,8 @@ Skipline is a modern e-commerce demo designed to highlight mobile checkout perfo
 ### Demo flow
 1. Browse catalog
 2. Product detail → add to cart
-3. Cart → checkout with coupon `SAVE10`
-4. Inspect trace IDs and span metrics
+3. Checkout with coupon `SAVE10`
+4. Inspect trace IDs (shown on confirmation) and span metrics
 
 ### Scenarios
 - Add header `X-Scenario: BlackFriday` to amplify latencies.

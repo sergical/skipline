@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import List, Optional
 
+import sentry_sdk
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,7 +14,9 @@ async def apply_coupon_naive(session: AsyncSession, subtotal_cents: int, coupon_
     if not coupon_code:
         return 0
     # Intentionally naive: scan all coupons in Python
-    coupons = (await session.execute(select(Coupon))).scalars().all()
+    with sentry_sdk.start_span(op="db.query", description="SELECT all coupons (naive)") as span:
+        span.set_data("db.system", "sqlite")
+        coupons = (await session.execute(select(Coupon))).scalars().all()
     now = datetime.utcnow()
     for c in coupons:
         if c.code == coupon_code and c.starts_at <= now <= c.ends_at and subtotal_cents >= c.min_subtotal_cents:
@@ -38,7 +41,9 @@ async def apply_coupon_fast(
             Coupon.min_subtotal_cents <= subtotal_cents,
         )
     )
-    coupon = (await session.execute(stmt)).scalars().first()
+    with sentry_sdk.start_span(op="db.query", description="SELECT coupon by code") as span:
+        span.set_data("db.system", "sqlite")
+        coupon = (await session.execute(stmt)).scalars().first()
     if not coupon:
         return 0
     return int(subtotal_cents * (coupon.percent_off / 100.0))
