@@ -11,7 +11,7 @@
   1. Open Catalog → observe loading skeletons, logs show product count
   2. Add to Cart from list → logs capture product details
   3. Go to Checkout → place order using coupon `SAVE10`
-  4. Copy Trace ID from confirmation and open in Sentry
+  4. Order confirmation shows professional receipt (trace ID available in Sentry)
 
 - Show traces & logs:
   - v1 Catalog: N+1 queries visible in traces, warning logs about inefficiency

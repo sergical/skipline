@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Alert, ScrollView, StyleSheet, TextInput, View, Pressable, ActivityIndicator } from 'react-native';
-import Animated, { FadeInDown, FadeIn, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import Animated, { FadeInDown, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { apiPost, apiGet, CheckoutRequest, CheckoutResponse, Product } from '../lib/api';
@@ -10,11 +10,11 @@ import { useThemeColor } from '@/hooks/useThemeColor';
 import * as Sentry from '@sentry/react-native';
 
 export default function CheckoutScreen() {
+  const router = useRouter();
   const { items, clear, toCheckoutPayload } = useCart();
   const [email, setEmail] = useState('demo@example.com');
   const [coupon, setCoupon] = useState('');
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<CheckoutResponse | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [loaded, setLoaded] = useState(false);
@@ -58,7 +58,6 @@ export default function CheckoutScreen() {
 
   async function onCheckout() {
     setLoading(true);
-    setResult(null);
     buttonScale.value = withTiming(0.97, { duration: 150 });
     
     try {
@@ -72,7 +71,6 @@ export default function CheckoutScreen() {
       });
       
       const res = await apiPost<CheckoutResponse>('/api/v1/checkout', payload);
-      setResult(res);
       clear();
       
       if (res.trace_id) {
@@ -83,6 +81,16 @@ export default function CheckoutScreen() {
         });
         Sentry.captureMessage('Checkout succeeded', { level: 'info', extra: { trace_id: res.trace_id } });
       }
+      
+      // Navigate to confirmation screen
+      router.replace({
+        pathname: '/order-confirmation',
+        params: {
+          orderId: res.order_id,
+          total: (res.total_cents / 100).toFixed(2),
+          email: email
+        }
+      });
     } catch (e: any) {
       Sentry.logger.error('Checkout failed', {
         error: e?.message || 'Unknown error',
@@ -203,39 +211,6 @@ export default function CheckoutScreen() {
           </Animated.View>
         </Pressable>
       </Animated.View>
-
-      {result && (
-        <Animated.View entering={FadeIn.duration(500)}>
-          <ThemedView style={[styles.result, { backgroundColor: cardBg, borderColor }]}>
-            <View style={styles.successIcon}>
-              <Ionicons name="checkmark-circle" size={48} color="#2E7D32" />
-            </View>
-            <ThemedText type="subtitle" style={{ textAlign: 'center' }}>
-              Order Confirmed!
-            </ThemedText>
-            <View style={styles.resultDetails}>
-              <View style={styles.resultRow}>
-                <ThemedText style={{ opacity: 0.7 }}>Order ID</ThemedText>
-                <ThemedText style={{ fontWeight: '600' }}>#{result.order_id}</ThemedText>
-              </View>
-              <View style={styles.resultRow}>
-                <ThemedText style={{ opacity: 0.7 }}>Total</ThemedText>
-                <ThemedText style={{ fontWeight: '700', fontSize: 18, color: accentColor }}>
-                  ${(result.total_cents / 100).toFixed(2)}
-                </ThemedText>
-              </View>
-              {result.trace_id && (
-                <View style={[styles.traceContainer, { backgroundColor: backgroundColor, borderColor }]}>
-                  <ThemedText style={{ fontSize: 12, opacity: 0.7 }}>Trace ID</ThemedText>
-                  <ThemedText style={{ fontSize: 12, fontFamily: 'SpaceMono' }}>
-                    {result.trace_id}
-                  </ThemedText>
-                </View>
-              )}
-            </View>
-          </ThemedView>
-        </Animated.View>
-      )}
     </ScrollView>
   );
 }
@@ -283,31 +258,6 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     fontWeight: '600',
-  },
-  result: { 
-    marginTop: 24, 
-    padding: 24, 
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  successIcon: {
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  resultDetails: {
-    marginTop: 20,
-    gap: 12,
-  },
-  resultRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  traceContainer: {
-    marginTop: 12,
-    padding: 12,
-    borderRadius: 8,
-    borderWidth: 1,
   },
   cartItem: {
     flexDirection: 'row',

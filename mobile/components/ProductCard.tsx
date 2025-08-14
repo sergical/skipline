@@ -32,9 +32,6 @@ export function ProductCard({ product, onAddToCart }: Props) {
     transform: [{ scale: scale.value }],
   }));
 
-  const cartIconStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: cartIconScale.value }],
-  }));
 
   const buttonAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: buttonScale.value }],

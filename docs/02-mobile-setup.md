@@ -20,7 +20,6 @@ Prereqs: Node 18+, Expo CLI.
   Sentry.init({
     dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
     tracesSampleRate: 1.0,
-    enableAutoPerformanceTracing: true,
     profilesSampleRate: 1.0,
     tracePropagationTargets: [/localhost:\\d+/, /127.0.0.1/],
   })

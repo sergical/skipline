@@ -7,7 +7,7 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import * as Sentry from '@sentry/react-native';
-import { API_BASE_URL } from '../lib/api';
+
 import { useEffect } from 'react';
 
 const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
@@ -19,25 +19,13 @@ const navigationIntegration = Sentry.reactNavigationIntegration({
 
 Sentry.init({
   dsn: SENTRY_DSN,
-
+  debug: true,
   // Adds more context data to events (IP address, cookies, user, etc.)
   // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
   sendDefaultPii: true,
 
-  // Auto performance tracing and fetch/span instrumentation
-  enableAutoPerformanceTracing: true,
   tracesSampleRate: 1.0, // adjust this in production to lower rates
   profilesSampleRate: 1.0, // adjust this in production to lower rates
-
-  // Configure trace propagation targets
-  tracePropagationTargets: (() => {
-    try {
-      const u = new URL(API_BASE_URL);
-      return [u.host, /localhost:\d+/, /127\.0\.0\.1/];
-    } catch {
-      return [/localhost:\d+/, /127\.0\.0\.1/];
-    }
-  })(),
 
   // Configure Session Replay
   replaysSessionSampleRate: 1, // adjust this in production to lower rates
@@ -80,6 +68,14 @@ export default Sentry.wrap(function RootLayout() {
           options={{ 
             title: 'Checkout',
             headerBackTitle: 'Home' 
+          }} 
+        />
+        <Stack.Screen 
+          name="order-confirmation" 
+          options={{ 
+            title: 'Order Confirmation',
+            headerBackVisible: false,
+            gestureEnabled: false,
           }} 
         />
         <Stack.Screen name="+not-found" />

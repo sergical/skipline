@@ -1,5 +1,16 @@
 # Recent Updates Summary
 
+## Order Confirmation Flow Improvements
+- **Added**: Dedicated order confirmation screen with proper navigation
+- **Changed**: Order confirmation now uses separate route instead of conditional rendering
+- **Removed**: Debug trace ID from customer-facing confirmation screen
+- **Improved**: Professional order confirmation design with:
+  - Order number and total prominently displayed
+  - Email confirmation notice
+  - Estimated delivery time
+  - Clean, centered layout with proper spacing
+- **Navigation**: Uses `router.replace()` to prevent back navigation to checkout
+
 ## API Endpoint Harmonization
 - **Changed**: v1 endpoint `/products` renamed to `/catalog`
 - **Benefit**: Both v1 and v2 now use identical endpoint names

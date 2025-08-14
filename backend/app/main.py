@@ -27,6 +27,7 @@ def init_sentry():
     
     sentry_sdk.init(
         dsn=dsn,
+        debug=True,
         # Add data like request headers and IP for users, if applicable;
         # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
         send_default_pii=True,

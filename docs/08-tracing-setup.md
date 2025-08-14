@@ -45,9 +45,7 @@ const ENABLE_SENTRY_LOGS = process.env.EXPO_PUBLIC_ENABLE_SENTRY_LOGS === 'true'
 
 Sentry.init({
   dsn: SENTRY_DSN,
-  enableAutoPerformanceTracing: true,
   tracesSampleRate: 1.0,
-  tracePropagationTargets: [API_HOST, /localhost:\\d+/, /127\.0\.0\.1/],
   _experiments: {
     enableLogs: ENABLE_SENTRY_LOGS,
   }
