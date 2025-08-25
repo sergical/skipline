@@ -23,7 +23,7 @@ Sentry.init({
   // Adds more context data to events (IP address, cookies, user, etc.)
   // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
   sendDefaultPii: true,
-
+  enableUserInteractionTracing: true,
   tracesSampleRate: 1.0, // adjust this in production to lower rates
   profilesSampleRate: 1.0, // adjust this in production to lower rates
 
