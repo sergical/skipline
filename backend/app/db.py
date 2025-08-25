@@ -9,6 +9,7 @@ from sqlalchemy.orm import DeclarativeBase
 from .db_config import get_database_url
 
 DATABASE_URL = get_database_url()
+print(f"Using database URL: {DATABASE_URL}")
 
 engine = create_async_engine(
     DATABASE_URL, 

@@ -14,6 +14,9 @@ def get_database_url() -> str:
         if database_url.startswith("postgres://"):
             # Convert to asyncpg format for SQLAlchemy
             database_url = database_url.replace("postgres://", "postgresql+asyncpg://")
+        elif database_url.startswith("postgresql://"):
+            # Convert to asyncpg format for SQLAlchemy
+            database_url = database_url.replace("postgresql://", "postgresql+asyncpg://")
         return database_url
     
     # Default to SQLite for local development
