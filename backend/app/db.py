@@ -6,7 +6,9 @@ from typing import AsyncIterator
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
-DATABASE_URL = "sqlite+aiosqlite:///./skipline.db"
+from .db_config import get_database_url
+
+DATABASE_URL = get_database_url()
 
 engine = create_async_engine(
     DATABASE_URL, 

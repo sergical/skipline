@@ -8,6 +8,7 @@ dependencies = [
   "uvicorn[standard]",
   "sqlalchemy>=2.0",
   "aiosqlite",
+  "asyncpg",  # For PostgreSQL support
   "pydantic",
   "pydantic-settings",
   "httpx",

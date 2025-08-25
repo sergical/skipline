@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: skipline-backend
+    runtime: python
+    region: oregon # optional
+    plan: free
+    buildCommand: "chmod +x build.sh && ./build.sh"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DATABASE_URL
+        fromDatabase:
+          name: skipline-db
+          property: connectionString
+      - key: SENTRY_DSN
+        sync: false # Add manually in dashboard
+      - key: ENABLE_SENTRY_LOGS
+        value: true
+
+databases:
+  - name: skipline-db
+    plan: free
+    region: oregon # optional
