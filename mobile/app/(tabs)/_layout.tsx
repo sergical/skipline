@@ -45,6 +45,9 @@ export default function TabLayout() {
                   transform: [{ scale: pressed ? 0.97 : 1 }]
                 }
               ]}
+              testID="cart-button"
+              accessibilityLabel="Shopping cart"
+              accessibilityRole="button"
             >
               <View>
                 <IconSymbol size={24} name="cart.fill" color={Colors[colorScheme ?? 'light'].tint} />

@@ -33,7 +33,7 @@ export function CartBadge({ count }: Props) {
   if (count === 0) return null;
 
   return (
-    <Animated.View style={[styles.badge, animatedStyle]}>
+    <Animated.View style={[styles.badge, animatedStyle]} testID="cart-badge">
       <Text style={styles.text}>{count > 99 ? '99+' : count}</Text>
     </Animated.View>
   );

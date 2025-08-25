@@ -88,6 +88,9 @@ export function ProductCard({ product, onAddToCart }: Props) {
               onPress={handleAddToCart}
               onPressIn={() => buttonScale.value = withTiming(0.97, { duration: 150 })}
               onPressOut={() => buttonScale.value = withTiming(1, { duration: 150 })}
+              accessibilityLabel={`Add ${product.name} to cart`}
+              accessibilityRole="button"
+              testID={`add-to-cart-${product.id}`}
             >
               <Animated.View style={[buttonAnimatedStyle, styles.cartButton, { backgroundColor: accentColor }]}>
                 <View style={styles.cartButtonContent}>
