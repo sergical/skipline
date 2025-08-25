@@ -5,7 +5,10 @@ set -e
 
 echo "Installing dependencies..."
 cd backend
-pip install -e .
+pip install -r requirements.txt
+
+echo "Setting up Python path..."
+export PYTHONPATH=/opt/render/project/src/backend:$PYTHONPATH
 
 echo "Creating database tables..."
 python -c "
