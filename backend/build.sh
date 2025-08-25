@@ -4,6 +4,7 @@
 set -e
 
 echo "Installing dependencies..."
+cd backend
 pip install -e .
 
 echo "Creating database tables..."
