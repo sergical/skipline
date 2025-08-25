@@ -1,0 +1,13 @@
+appId: com.sergical.skipline
+---
+- launchApp
+- waitForAnimationToEnd
+- assertVisible: 'Home'
+# Add first product to cart
+- tapOn: 
+    text: 'Add'
+    index: 0
+- assertVisible: 
+    id: 'cart-badge' # Cart badge should appear
+- tapOn: 'cart.fill' # Tap on cart icon to go to checkout
+

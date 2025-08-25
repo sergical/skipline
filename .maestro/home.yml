@@ -1,0 +1,9 @@
+appId: com.sergical.skipline
+---
+- launchApp
+- waitForAnimationToEnd
+- assertVisible: 'Home'
+- assertVisible: 
+    text: 'Add'
+    index: 0
+

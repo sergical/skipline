@@ -1,0 +1,45 @@
+appId: com.sergical.skipline
+---
+- launchApp
+- waitForAnimationToEnd
+- assertVisible: 'Home'
+
+# Add multiple products to cart
+- tapOn: 
+    text: 'Add'
+    index: 0
+- tapOn: 
+    text: 'Add'
+    index: 1
+- tapOn: 
+    text: 'Add'
+    index: 2
+
+# Go to checkout (handle both iOS and Android)
+- tapOn: 
+    id: 'cart-badge'
+    optional: true
+- runFlow:
+    when:
+      notVisible: 'Checkout'
+    commands:
+      - tapOn: 'shopping-cart'  # Android fallback
+- assertVisible: 'Checkout'
+- assertVisible: 'Order Summary'
+
+# Enter coupon code
+- tapOn: 'Enter code (try SAVE10)'
+- inputText: 'SAVE10'
+
+# Place order
+- scrollUntilVisible:
+    element: 'Place Order'
+    direction: DOWN
+- tapOn: 'Place Order'
+
+# Verify order confirmation
+- waitForAnimationToEnd
+- assertVisible: 'Thank You!'
+- assertVisible: 'Your order has been confirmed'
+- assertVisible: 'Continue Shopping'
+

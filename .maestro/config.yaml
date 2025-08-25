@@ -1,0 +1,18 @@
+# Maestro configuration for cross-platform testing
+flows:
+  - checkout-flow.yml
+  - add-to-cart.yml
+  - stress-test.yml
+  - full-test-suite.yml
+
+# Global test settings
+tags:
+  - e2e
+  - skipline
+  
+# Environment-specific settings
+environments:
+  - name: production
+    appId: com.sergical.skipline
+    vars:
+      API_URL: https://skipline-backend.onrender.com
