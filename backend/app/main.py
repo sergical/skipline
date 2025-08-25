@@ -77,3 +77,102 @@ app.include_router(v2.router)
 @app.get("/")
 async def root(request: Request):
     return {"ok": True}
+
+
+@app.post("/seed-database")
+async def seed_database():
+    """One-time database seeding endpoint."""
+    from sqlalchemy import select
+    from .models import Product, Category, User, Coupon, InventoryMovement
+    from .db import SessionLocal
+    import random
+    from datetime import datetime, timedelta
+    
+    async with SessionLocal() as session:
+        # Check if already seeded
+        result = await session.execute(select(Product).limit(1))
+        if result.scalar() is not None:
+            return {"status": "already_seeded", "message": "Database already has products"}
+        
+        # Seed user
+        user = User(email="demo@skipline.app")
+        session.add(user)
+        
+        # Seed categories
+        categories = [
+            Category(name="Gadgets", slug="gadgets"),
+            Category(name="Home", slug="home"),
+            Category(name="Outdoors", slug="outdoors"),
+            Category(name="Style", slug="style"),
+        ]
+        session.add_all(categories)
+        await session.flush()
+        
+        # Seed products
+        products_data = [
+            ("Wireless Earbuds", "wireless-earbuds", 0, 14999),
+            ("Smart Watch", "smart-watch", 0, 29999),
+            ("Portable Charger", "portable-charger", 0, 3999),
+            ("Bluetooth Speaker", "bluetooth-speaker", 1, 7999),
+            ("Coffee Maker", "coffee-maker", 1, 12999),
+            ("Robot Vacuum", "robot-vacuum", 1, 49999),
+            ("Camping Tent", "camping-tent", 2, 19999),
+            ("Hiking Backpack", "hiking-backpack", 2, 8999),
+            ("Water Bottle", "water-bottle", 2, 2499),
+            ("Running Shoes", "running-shoes", 3, 11999),
+            ("Winter Jacket", "winter-jacket", 3, 15999),
+            ("Sunglasses", "sunglasses", 3, 9999),
+        ]
+        
+        products = []
+        for name, slug, cat_idx, price in products_data:
+            product = Product(
+                name=name,
+                slug=slug,
+                category_id=categories[cat_idx].id,
+                price_cents=price,
+                image_url=f"https://picsum.photos/seed/{slug}/400/300"
+            )
+            products.append(product)
+        session.add_all(products)
+        await session.flush()
+        
+        # Add inventory
+        for product in products:
+            movement = InventoryMovement(
+                product_id=product.id,
+                delta=random.randint(5, 50)
+            )
+            session.add(movement)
+        
+        # Add coupons
+        coupons = [
+            Coupon(
+                code="SAVE10",
+                percent_off=10,
+                starts_at=datetime.now() - timedelta(days=30),
+                ends_at=datetime.now() + timedelta(days=30),
+                min_subtotal_cents=5000,
+            ),
+            Coupon(
+                code="BLACKFRIDAY",
+                percent_off=50,
+                starts_at=datetime.now() - timedelta(days=1),
+                ends_at=datetime.now() + timedelta(days=1),
+                min_subtotal_cents=0,
+                applies_to_category_id=categories[0].id,
+            ),
+        ]
+        session.add_all(coupons)
+        
+        await session.commit()
+        
+        return {
+            "status": "success",
+            "message": "Database seeded successfully!",
+            "data": {
+                "categories": len(categories),
+                "products": len(products),
+                "coupons": ["SAVE10", "BLACKFRIDAY"]
+            }
+        }
