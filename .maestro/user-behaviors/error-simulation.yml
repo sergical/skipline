@@ -38,21 +38,21 @@ appId: com.sergical.skipline
       - tapOn:
           text: "Enter code (try SAVE10)"
       - inputText: "INVALID123"
-      - pressKey: "return"
+      - hideKeyboard
       - waitForAnimationToEnd
       
       # Scenario 4: Try empty coupon code
       - tapOn:
           text: "Enter code (try SAVE10)"
       - inputText: ""
-      - pressKey: "return"
+      - hideKeyboard
       - waitForAnimationToEnd
       
       # Scenario 5: Try very long coupon code
       - tapOn:
           text: "Enter code (try SAVE10)"
       - inputText: "THISISAVERYLONGCOUPONCODETHATSHOULDBEINVALID"
-      - pressKey: "return"
+      - hideKeyboard
       - waitForAnimationToEnd
       
       # Scenario 6: Rapid navigation (potential state issues)
@@ -86,7 +86,7 @@ appId: com.sergical.skipline
 - tapOn:
     text: "Enter code (try SAVE10)"
 - inputText: "INVALID_COUPON"
-- pressKey: "return"
+- hideKeyboard
 
 - scrollUntilVisible:
     element:

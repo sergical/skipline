@@ -21,11 +21,10 @@ appId: com.sergical.skipline
 - repeat:
     times: 3
     commands:
-      # Add products to cart (generates product interaction data)
+      # Add first two products
       - tapOn:
           id: "add-to-cart-1"
       - waitForAnimationToEnd
-      
       - tapOn:
           id: "add-to-cart-2"
       - waitForAnimationToEnd
@@ -35,12 +34,14 @@ appId: com.sergical.skipline
           direction: UP
           duration: 800
       
+      # Tap on the first visible "Add" button after scrolling
       - tapOn:
-          id: "add-to-cart-3"
+          text: "Add"
       - waitForAnimationToEnd
       
+      # Tap on another "Add" button
       - tapOn:
-          id: "add-to-cart-4"
+          text: "Add"
       - waitForAnimationToEnd
       
       # Navigate to cart (generates navigation traces)
@@ -54,7 +55,7 @@ appId: com.sergical.skipline
       - inputText: "SAVE10"
       
       # Dismiss keyboard to see the Place Order button
-      - pressKey: "return"
+      - hideKeyboard
       
       - scrollUntilVisible:
           element:
@@ -66,11 +67,15 @@ appId: com.sergical.skipline
           text: "Place Order"
       - waitForAnimationToEnd
       
-      # Wait for order confirmation screen and complete the transaction
+      # Wait for order confirmation screen
       - extendedWaitUntil:
           visible: "Thank You!"
           timeout: 10000
       
+      # Wait a bit more for the screen to fully load
+      - waitForAnimationToEnd
+      
+      # Tap Continue Shopping to return to home
       - tapOn:
           text: "Continue Shopping"
       - waitForAnimationToEnd

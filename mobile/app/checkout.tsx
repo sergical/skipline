@@ -97,7 +97,24 @@ export default function CheckoutScreen() {
         userEmail: email,
       });
       Sentry.captureException(e);
-      Alert.alert('Checkout failed', e?.message ?? 'Unknown error');
+      
+      // Handle different types of errors
+      let errorMessage = 'Checkout failed. Please try again.';
+      
+      if (e?.response?.data?.detail) {
+        // Handle structured API errors
+        const detail = e.response.data.detail;
+        if (typeof detail === 'object' && detail.message) {
+          errorMessage = detail.message;
+        } else if (typeof detail === 'string') {
+          errorMessage = detail;
+        }
+      } else if (e?.message) {
+        // Handle other errors
+        errorMessage = e.message;
+      }
+      
+      Alert.alert('Checkout failed', errorMessage);
     } finally {
       setLoading(false);
       buttonScale.value = withTiming(1, { duration: 150 });

@@ -76,7 +76,18 @@ async def checkout(
         inv = await get_inventory_for_product_naive(session, prod.id)
         if inv < item.quantity:
             logger.error(f"Insufficient inventory for product {prod.id}: requested={item.quantity}, available={inv}")
-            raise ValueError("Out of stock")
+            from fastapi import HTTPException
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "insufficient_inventory",
+                    "message": f"Product '{prod.name}' is out of stock. Requested: {item.quantity}, Available: {inv}",
+                    "product_id": prod.id,
+                    "product_name": prod.name,
+                    "requested_quantity": item.quantity,
+                    "available_quantity": inv
+                }
+            )
         subtotal += prod.price_cents * item.quantity
 
     logger.info(f"Calculated subtotal: ${subtotal/100:.2f}")

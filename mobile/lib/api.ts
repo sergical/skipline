@@ -23,6 +23,21 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
     headers: headers(),
     body: JSON.stringify(body),
   });
+  
+  if (!res.ok) {
+    // Parse error response
+    let errorData;
+    try {
+      errorData = await res.json();
+    } catch {
+      errorData = { message: `HTTP ${res.status}: ${res.statusText}` };
+    }
+    
+    const error = new Error(errorData.message || `HTTP ${res.status}`);
+    (error as any).response = { data: errorData, status: res.status };
+    throw error;
+  }
+  
   const data = (await res.json()) as T;
   return data;
 }
