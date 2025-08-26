@@ -23,10 +23,6 @@ tags:
   - e2e
   - skipline
   
-# Test timeouts
-testTimeout: 180000    # 3 minutes per test
-globalTimeout: 600000  # 10 minutes total
-  
 # Environment-specific settings
 environments:
   - name: production
