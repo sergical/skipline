@@ -1,14 +1,31 @@
 # Maestro configuration for cross-platform testing
 flows:
+  # Core e2e tests
   - checkout-flow.yml
   - add-to-cart.yml
   - stress-test.yml
   - full-test-suite.yml
+  
+  # User behavior simulations
+  - user-behaviors/happy-path-purchase.yml
+  - user-behaviors/browse-only.yml
+  - user-behaviors/cart-abandonment.yml
+  - user-behaviors/quick-purchase.yml
+  - user-behaviors/price-conscious-shopper.yml
+  - user-behaviors/power-user.yml
+  - user-behaviors/error-scenarios.yml
+  
+  # Continuous simulation
+  - continuous-user-simulation.yml
 
 # Global test settings
 tags:
   - e2e
   - skipline
+  
+# Test timeouts
+testTimeout: 180000    # 3 minutes per test
+globalTimeout: 600000  # 10 minutes total
   
 # Environment-specific settings
 environments:

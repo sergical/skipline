@@ -1,0 +1,82 @@
+appId: com.sergical.skipline
+name: Happy Path - Complete Purchase
+tags:
+  - user-behavior
+  - purchase
+  - sentry-data
+---
+- launchApp
+- waitForAnimationToEnd
+
+# Wait for products to load
+- assertVisible: 
+    text: 'Home'
+    timeout: 10000
+
+# Simulate user browsing catalog
+- swipe:
+    direction: DOWN
+    duration: 2000
+- wait: 1500  # User looking at products
+
+- swipe:
+    direction: UP
+    duration: 1500
+- wait: 1000
+
+# Add first product (using testID)
+- tapOn:
+    id: "add-to-cart-1"
+- wait: 500  # Small pause after adding
+
+# Scroll to see more products
+- swipe:
+    direction: DOWN
+    duration: 1000
+- wait: 1500
+
+# Add another product
+- tapOn:
+    id: "add-to-cart-3"
+- wait: 500
+
+# Maybe add one more
+- tapOn:
+    id: "add-to-cart-2"
+- wait: 800
+
+# Go to cart
+- tapOn:
+    id: "cart-button"
+- waitForAnimationToEnd
+
+# Review checkout
+- assertVisible: "Checkout"
+- wait: 2000  # User reviewing order
+
+# Scroll to see full order
+- swipe:
+    direction: DOWN
+    duration: 800
+- wait: 1000
+
+# Apply coupon
+- tapOn: "Enter code (try SAVE10)"
+- inputText: "SAVE10"
+- wait: 1000
+
+# Complete purchase
+- scrollUntilVisible:
+    element: "Place Order"
+    direction: DOWN
+    timeout: 5000
+- tapOn: "Place Order"
+
+# Wait for confirmation
+- waitForAnimationToEnd
+- assertVisible: "Thank You!"
+- wait: 3000  # User reading confirmation
+
+# Continue shopping
+- tapOn: "Continue Shopping"
+- waitForAnimationToEnd

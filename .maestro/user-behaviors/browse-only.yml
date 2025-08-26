@@ -1,0 +1,47 @@
+appId: com.sergical.skipline
+name: Browse Only - Window Shopping
+tags:
+  - user-behavior
+  - browse
+  - sentry-data
+---
+- launchApp
+- waitForAnimationToEnd
+
+# Wait for home screen
+- assertVisible: 
+    text: 'Home'
+    timeout: 10000
+
+# Extended browsing session
+- repeat:
+    times: 3
+    commands:
+      # Scroll through catalog
+      - swipe:
+          direction: DOWN
+          duration: 1500
+      - wait: 2000  # Looking at products
+      
+      - swipe:
+          direction: DOWN
+          duration: 1000
+      - wait: 1500
+      
+      - swipe:
+          direction: UP
+          duration: 2000
+      - wait: 1000
+      
+      # Navigate to Explore tab
+      - tapOn: "Explore"
+      - waitForAnimationToEnd
+      - wait: 2000
+      
+      # Go back to Home
+      - tapOn: "Home"
+      - waitForAnimationToEnd
+      - wait: 1000
+
+# Exit without purchasing
+- pressKey: Home

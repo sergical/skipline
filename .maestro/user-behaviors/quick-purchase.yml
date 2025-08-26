@@ -1,0 +1,44 @@
+appId: com.sergical.skipline
+name: Quick Purchase - Decisive Buyer
+tags:
+  - user-behavior
+  - quick-purchase
+  - sentry-data
+---
+- launchApp
+- waitForAnimationToEnd
+
+# Wait for products
+- assertVisible: 
+    text: 'Home'
+    timeout: 10000
+
+# Quick decision - buy first item
+- tapOn:
+    id: "add-to-cart-1"
+- wait: 200
+
+# Immediately go to checkout
+- tapOn:
+    id: "cart-button"
+- waitForAnimationToEnd
+
+# Quick checkout
+- assertVisible: "Checkout"
+- wait: 500
+
+# Place order without coupon
+- scrollUntilVisible:
+    element: "Place Order"
+    direction: DOWN
+    timeout: 5000
+    speed: 80  # Fast scroll
+- tapOn: "Place Order"
+
+# Confirmation
+- waitForAnimationToEnd
+- assertVisible: "Thank You!"
+- wait: 1000
+
+# Done
+- pressKey: Home

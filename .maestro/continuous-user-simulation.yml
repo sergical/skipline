@@ -1,0 +1,43 @@
+appId: com.sergical.skipline
+name: Continuous User Behavior Simulation
+tags:
+  - continuous
+  - sentry-data
+  - simulation
+env:
+  ITERATION_COUNT: 10  # Number of times to run the full cycle
+---
+# This flow runs different user behaviors continuously to populate Sentry with realistic data
+
+- repeat:
+    times: ${ITERATION_COUNT}
+    commands:
+      # Happy path purchase (30% of users)
+      - runFlow: user-behaviors/happy-path-purchase.yml
+      - wait: 5000  # Wait between sessions
+      
+      # Browse only (25% of users)
+      - runFlow: user-behaviors/browse-only.yml
+      - wait: 3000
+      
+      # Cart abandonment (20% of users)
+      - runFlow: user-behaviors/cart-abandonment.yml
+      - wait: 4000
+      
+      # Quick purchase (15% of users)
+      - runFlow: user-behaviors/quick-purchase.yml
+      - wait: 3000
+      
+      # Price conscious shopper (10% of users)
+      - runFlow: user-behaviors/price-conscious-shopper.yml
+      - wait: 4000
+      
+      # Power user - less common but generates lots of data
+      - runFlow:
+          when:
+            true: ${output.random = Math.random(); output.random < 0.3}  # 30% chance
+          file: user-behaviors/power-user.yml
+      - wait: 5000
+      
+      # Log iteration completed
+      - evalScript: ${console.log(`Completed iteration ${output.iteration || 1} of user simulations`); output.iteration = (output.iteration || 1) + 1}
