@@ -1,108 +1,59 @@
 #!/bin/bash
-# Run user behavior simulations to populate Sentry data
 
-echo "🎭 Skipline User Behavior Simulator"
+# Sentry Data Generation Script
+# This script runs Maestro flows to generate realistic user behavior data for Sentry
+
+echo "🚀 Starting Sentry Data Generation"
 echo "=================================="
 
-# Function to show usage
-show_usage() {
-    echo "Usage: $0 [command] [options]"
+# Set environment variables for the deployed backend
+export EXPO_PUBLIC_API_BASE_URL="https://skipline-backend.onrender.com"
+
+# Function to run a test with error handling
+run_test() {
+    local test_name="$1"
+    local test_file="$2"
+    
     echo ""
-    echo "Commands:"
-    echo "  single <behavior>   Run a single behavior flow"
-    echo "  continuous [count]  Run continuous simulation (default: 10 iterations)"
-    echo "  stress             Run stress test with heavy load"
-    echo "  all                Run all behaviors once"
-    echo ""
-    echo "Behaviors:"
-    echo "  - happy-path-purchase"
-    echo "  - browse-only"
-    echo "  - cart-abandonment"
-    echo "  - quick-purchase"
-    echo "  - price-conscious-shopper"
-    echo "  - power-user"
-    echo ""
-    echo "Examples:"
-    echo "  $0 single happy-path-purchase"
-    echo "  $0 continuous 20"
-    echo "  $0 stress"
+    echo "📱 Running: $test_name"
+    echo "   File: $test_file"
+    echo "   Time: $(date)"
+    
+    if maestro test "$test_file"; then
+        echo "   ✅ SUCCESS: $test_name completed"
+    else
+        echo "   ❌ FAILED: $test_name failed"
+        return 1
+    fi
 }
 
-# Check if maestro is installed
-if ! command -v maestro &> /dev/null; then
-    echo "❌ Maestro is not installed. Please install it first."
-    exit 1
-fi
+# Run the comprehensive user simulation with product interactions
+echo ""
+echo "🛒 Running Comprehensive User Simulation (3 iterations)"
+run_test "Comprehensive User Simulation" ".maestro/user-behaviors/comprehensive-user-simulation.yml"
 
-# Parse command
-case "$1" in
-    single)
-        if [ -z "$2" ]; then
-            echo "❌ Please specify a behavior to run"
-            show_usage
-            exit 1
-        fi
-        
-        behavior_file=".maestro/user-behaviors/$2.yml"
-        if [ ! -f "$behavior_file" ]; then
-            echo "❌ Behavior file not found: $behavior_file"
-            exit 1
-        fi
-        
-        echo "🚀 Running single behavior: $2"
-        maestro test "$behavior_file"
-        ;;
-        
-    continuous)
-        iterations=${2:-10}
-        echo "🔄 Running continuous simulation with $iterations iterations"
-        echo "   This will simulate various user behaviors to populate Sentry data"
-        echo ""
-        
-        # Run with custom iteration count
-        maestro test -e ITERATION_COUNT="$iterations" .maestro/continuous-user-simulation.yml
-        ;;
-        
-    stress)
-        echo "💪 Running stress test simulation"
-        echo "   This will generate heavy load to test performance monitoring"
-        echo ""
-        
-        # Run power user behavior multiple times in parallel
-        for i in {1..3}; do
-            maestro test .maestro/user-behaviors/power-user.yml &
-        done
-        
-        # Wait for all parallel runs to complete
-        wait
-        
-        echo "✅ Stress test completed"
-        ;;
-        
-    all)
-        echo "🎯 Running all user behaviors once"
-        echo ""
-        
-        for behavior in happy-path-purchase browse-only cart-abandonment quick-purchase price-conscious-shopper power-user; do
-            echo "▶️  Running: $behavior"
-            maestro test ".maestro/user-behaviors/$behavior.yml"
-            echo ""
-            sleep 2
-        done
-        
-        echo "✅ All behaviors completed"
-        ;;
-        
-    *)
-        show_usage
-        exit 1
-        ;;
-esac
+# Run error simulation to test error handling and generate error data
+echo ""
+echo "⚠️  Running Error Simulation (2 iterations)"
+run_test "Error Simulation" ".maestro/user-behaviors/error-simulation.yml"
 
 echo ""
-echo "📊 Check your Sentry dashboard for:"
-echo "   - Performance transactions"
-echo "   - User interaction traces"
-echo "   - Cart abandonment patterns"
-echo "   - Error rates and patterns"
-echo "   - Session replay data"
+echo "📊 Summary"
+echo "=========="
+echo "✅ Sentry data generation completed!"
+echo "📈 Generated data includes:"
+echo "   - Performance metrics (app launch, navigation, scrolling)"
+echo "   - User interaction traces (taps, swipes)"
+echo "   - Navigation events (cart interactions, screen transitions)"
+echo "   - Session data (app usage patterns)"
+echo "   - Error tracking (if any issues occur)"
+
+echo ""
+echo "🔍 Next Steps:"
+echo "   - Check Sentry dashboard for new data"
+echo "   - Monitor performance metrics and user flows"
+echo "   - Review navigation traces and user interactions"
+echo "   - Analyze any errors or performance issues"
+
+echo ""
+echo "✨ Sentry data generation complete!"

@@ -1,0 +1,92 @@
+appId: com.sergical.skipline
+---
+- launchApp
+- waitForAnimationToEnd
+
+# Wait for home screen
+- extendedWaitUntil:
+    visible: 'Home'
+    timeout: 10000
+
+# Wait for products to be loaded
+- extendedWaitUntil:
+    visible:
+        id: "products-loaded"
+    timeout: 15000
+
+# Wait for animations to complete
+- waitForAnimationToEnd
+
+# Comprehensive user simulation with product interactions
+- repeat:
+    times: 3
+    commands:
+      # Add products to cart (generates product interaction data)
+      - tapOn:
+          id: "add-to-cart-1"
+      - waitForAnimationToEnd
+      
+      - tapOn:
+          id: "add-to-cart-2"
+      - waitForAnimationToEnd
+      
+      # Scroll to see more products (generates performance data)
+      - swipe:
+          direction: UP
+          duration: 800
+      
+      - tapOn:
+          id: "add-to-cart-3"
+      - waitForAnimationToEnd
+      
+      - tapOn:
+          id: "add-to-cart-4"
+      - waitForAnimationToEnd
+      
+      # Navigate to cart (generates navigation traces)
+      - tapOn:
+          id: "cart-button"
+      - waitForAnimationToEnd
+      
+      # Complete checkout flow (generates transaction data)
+      - tapOn:
+          text: "Enter code (try SAVE10)"
+      - inputText: "SAVE10"
+      
+      # Dismiss keyboard to see the Place Order button
+      - pressKey: "return"
+      
+      - scrollUntilVisible:
+          element:
+              text: "Place Order"
+          direction: DOWN
+          timeout: 20000
+      
+      - tapOn:
+          text: "Place Order"
+      - waitForAnimationToEnd
+      
+      # Wait for order confirmation screen and complete the transaction
+      - extendedWaitUntil:
+          visible: "Thank You!"
+          timeout: 10000
+      
+      - tapOn:
+          text: "Continue Shopping"
+      - waitForAnimationToEnd
+      
+      # Additional scrolling for performance data
+      - swipe:
+          direction: UP
+          duration: 1000
+      - swipe:
+          direction: DOWN
+          duration: 1000
+
+# Final actions to generate more Sentry data
+- swipe:
+    direction: UP
+    duration: 800
+- swipe:
+    direction: DOWN
+    duration: 800

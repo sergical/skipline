@@ -1,0 +1,103 @@
+appId: com.sergical.skipline
+---
+- launchApp
+- waitForAnimationToEnd
+
+# Wait for home screen
+- extendedWaitUntil:
+    visible: 'Home'
+    timeout: 10000
+
+# Wait for products to be loaded
+- extendedWaitUntil:
+    visible:
+        id: "products-loaded"
+    timeout: 15000
+
+- waitForAnimationToEnd
+
+# Error Simulation Scenarios
+- repeat:
+    times: 2
+    commands:
+      # Scenario 1: Try to add products rapidly (potential race conditions)
+      - tapOn:
+          id: "add-to-cart-1"
+      - tapOn:
+          id: "add-to-cart-1"
+      - tapOn:
+          id: "add-to-cart-1"
+      - waitForAnimationToEnd
+      
+      # Scenario 2: Navigate to cart with many items
+      - tapOn:
+          id: "cart-button"
+      - waitForAnimationToEnd
+      
+      # Scenario 3: Try invalid coupon codes
+      - tapOn:
+          text: "Enter code (try SAVE10)"
+      - inputText: "INVALID123"
+      - pressKey: "return"
+      - waitForAnimationToEnd
+      
+      # Scenario 4: Try empty coupon code
+      - tapOn:
+          text: "Enter code (try SAVE10)"
+      - inputText: ""
+      - pressKey: "return"
+      - waitForAnimationToEnd
+      
+      # Scenario 5: Try very long coupon code
+      - tapOn:
+          text: "Enter code (try SAVE10)"
+      - inputText: "THISISAVERYLONGCOUPONCODETHATSHOULDBEINVALID"
+      - pressKey: "return"
+      - waitForAnimationToEnd
+      
+      # Scenario 6: Rapid navigation (potential state issues)
+      - tapOn: "Home"
+      - waitForAnimationToEnd
+      - tapOn:
+          id: "cart-button"
+      - waitForAnimationToEnd
+      - tapOn: "Home"
+      - waitForAnimationToEnd
+      
+      # Scenario 7: Rapid scrolling (performance stress)
+      - swipe:
+          direction: UP
+          duration: 200
+      - swipe:
+          direction: DOWN
+          duration: 200
+      - swipe:
+          direction: UP
+          duration: 200
+      - swipe:
+          direction: DOWN
+          duration: 200
+
+# Scenario 8: Try to complete checkout with invalid data
+- tapOn:
+    id: "cart-button"
+- waitForAnimationToEnd
+
+- tapOn:
+    text: "Enter code (try SAVE10)"
+- inputText: "INVALID_COUPON"
+- pressKey: "return"
+
+- scrollUntilVisible:
+    element:
+        text: "Place Order"
+    direction: DOWN
+    timeout: 20000
+
+- tapOn:
+    text: "Place Order"
+- waitForAnimationToEnd
+
+# Return to home
+- tapOn: "Home"
+- waitForAnimationToEnd

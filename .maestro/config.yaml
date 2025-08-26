@@ -1,27 +1,15 @@
-# Maestro configuration for cross-platform testing
+# Maestro configuration for Sentry data generation
 flows:
-  # Core e2e tests
-  - checkout-flow.yml
-  - add-to-cart.yml
-  - stress-test.yml
-  - full-test-suite.yml
-  
-  # User behavior simulations
-  - user-behaviors/happy-path-purchase.yml
-  - user-behaviors/browse-only.yml
-  - user-behaviors/cart-abandonment.yml
-  - user-behaviors/quick-purchase.yml
-  - user-behaviors/price-conscious-shopper.yml
-  - user-behaviors/power-user.yml
-  - user-behaviors/error-scenarios.yml
-  
-  # Continuous simulation
-  - continuous-user-simulation.yml
+  # Essential user behavior simulation
+  - user-behaviors/comprehensive-user-simulation.yml
+  # Error behavior simulation
+  - user-behaviors/error-simulation.yml
 
 # Global test settings
 tags:
   - e2e
   - skipline
+  - sentry-data
   
 # Environment-specific settings
 environments:

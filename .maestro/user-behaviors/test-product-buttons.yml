@@ -1,0 +1,40 @@
+appId: com.sergical.skipline
+---
+- launchApp
+- waitForAnimationToEnd
+
+# Wait for home screen
+- extendedWaitUntil:
+    visible: 'Home'
+    timeout: 10000
+
+# Wait for products to be loaded
+- extendedWaitUntil:
+    visible:
+        id: "products-loaded"
+    timeout: 15000
+
+# Wait for animations to complete
+- waitForAnimationToEnd
+
+# Test tapping "Add" buttons using their testIDs
+- tapOn:
+    id: "add-to-cart-1"
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "add-to-cart-2"
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "add-to-cart-3"
+- waitForAnimationToEnd
+
+# Navigate to cart to see if items were added
+- tapOn:
+    id: "cart-button"
+- waitForAnimationToEnd
+
+# Go back to home
+- tapOn: "Home"
+- waitForAnimationToEnd

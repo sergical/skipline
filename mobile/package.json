@@ -10,7 +10,8 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "build:ios": "eas build --profile preview --platform ios",
-    "build:android": "eas build --profile preview --platform android"
+    "build:android": "eas build --profile preview --platform android",
+    "maestro:studio": "maestro studio"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",

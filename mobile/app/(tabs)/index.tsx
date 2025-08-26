@@ -66,10 +66,12 @@ export default function HomeScreen() {
         keyExtractor={(item) => String(item.id)}
         numColumns={2}
         columnWrapperStyle={styles.row}
+        testID={loaded && products && products.length > 0 ? "products-loaded" : undefined}
         renderItem={({ item, index }) => (
           <Animated.View
             entering={FadeInDown.delay(Math.floor(index / 2) * 100).springify()}
             style={styles.cardContainer}
+            testID={index === 0 ? "first-product-card" : undefined}
           >
             <ProductCard 
               product={item} 

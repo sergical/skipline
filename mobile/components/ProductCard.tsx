@@ -16,11 +16,7 @@ type Props = {
   onAddToCart: () => void;
 };
 
-const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
-
 export function ProductCard({ product, onAddToCart }: Props) {
-  const scale = useSharedValue(1);
-  const cartIconScale = useSharedValue(1);
   const buttonScale = useSharedValue(1);
   
   const textColor = useThemeColor({}, 'text');
@@ -28,29 +24,11 @@ export function ProductCard({ product, onAddToCart }: Props) {
   const borderColor = useThemeColor({ light: '#e5e5e5', dark: '#333' }, 'background');
   const accentColor = useThemeColor({ light: '#0B6E6E', dark: '#2E7D32' }, 'tint');
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-  }));
-
-
   const buttonAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: buttonScale.value }],
   }));
 
-  const handlePressIn = () => {
-    scale.value = withTiming(0.98, { duration: 150 });
-  };
-
-  const handlePressOut = () => {
-    scale.value = withTiming(1, { duration: 150 });
-  };
-
   const handleAddToCart = () => {
-    // Quick scale animation for the icon
-    cartIconScale.value = withSequence(
-      withTiming(1.2, { duration: 100 }),
-      withSpring(1)
-    );
     onAddToCart();
   };
 
@@ -58,51 +36,45 @@ export function ProductCard({ product, onAddToCart }: Props) {
   const placeholderImage = `https://picsum.photos/seed/${product.id}/400/300`;
 
   return (
-    <AnimatedPressable
-      onPressIn={handlePressIn}
-      onPressOut={handlePressOut}
-      style={[animatedStyle]}
-    >
-      <View style={[styles.card, { backgroundColor, borderColor }]}>
-        <Image 
-          source={{ uri: product.image_url || placeholderImage }}
-          style={styles.image}
-          resizeMode="cover"
-        />
-        <View style={styles.content}>
-          <Text style={[styles.name, { color: textColor }]} numberOfLines={2}>
-            {product.name}
-          </Text>
-          <View style={styles.footer}>
-            <View>
-              <Text style={[styles.price, { color: accentColor }]}>
-                ${(product.price_cents / 100).toFixed(2)}
+    <Animated.View style={[styles.card, { backgroundColor, borderColor }]}>
+      <Image 
+        source={{ uri: product.image_url || placeholderImage }}
+        style={styles.image}
+        resizeMode="cover"
+      />
+      <View style={styles.content}>
+        <Text style={[styles.name, { color: textColor }]} numberOfLines={2}>
+          {product.name}
+        </Text>
+        <View style={styles.footer}>
+          <View>
+            <Text style={[styles.price, { color: accentColor }]}>
+              ${(product.price_cents / 100).toFixed(2)}
+            </Text>
+            {product.inventory !== null && (
+              <Text style={[styles.stock, { color: textColor, opacity: 0.6 }]}>
+                {product.inventory} in stock
               </Text>
-              {product.inventory !== null && (
-                <Text style={[styles.stock, { color: textColor, opacity: 0.6 }]}>
-                  {product.inventory} in stock
-                </Text>
-              )}
-            </View>
-            <Pressable 
-              onPress={handleAddToCart}
-              onPressIn={() => buttonScale.value = withTiming(0.97, { duration: 150 })}
-              onPressOut={() => buttonScale.value = withTiming(1, { duration: 150 })}
-              accessibilityLabel={`Add ${product.name} to cart`}
-              accessibilityRole="button"
-              testID={`add-to-cart-${product.id}`}
-            >
-              <Animated.View style={[buttonAnimatedStyle, styles.cartButton, { backgroundColor: accentColor }]}>
-                <View style={styles.cartButtonContent}>
-                  <Ionicons name="cart-outline" size={20} color="white" />
-                  <Text style={styles.cartButtonText}>Add</Text>
-                </View>
-              </Animated.View>
-            </Pressable>
+            )}
           </View>
+          <Pressable 
+            onPress={handleAddToCart}
+            onPressIn={() => buttonScale.value = withTiming(0.97, { duration: 150 })}
+            onPressOut={() => buttonScale.value = withTiming(1, { duration: 150 })}
+            accessibilityLabel={`Add ${product.name} to cart`}
+            accessibilityRole="button"
+            testID={`add-to-cart-${product.id}`}
+          >
+            <Animated.View style={[buttonAnimatedStyle, styles.cartButton, { backgroundColor: accentColor }]}>
+              <View style={styles.cartButtonContent}>
+                <Ionicons name="cart-outline" size={20} color="white" />
+                <Text style={styles.cartButtonText}>Add</Text>
+              </View>
+            </Animated.View>
+          </Pressable>
         </View>
       </View>
-    </AnimatedPressable>
+    </Animated.View>
   );
 }
 
