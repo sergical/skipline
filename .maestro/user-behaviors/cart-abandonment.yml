@@ -9,35 +9,29 @@ tags:
 - waitForAnimationToEnd
 
 # Wait for products
-- assertVisible: 
-    text: 'Home'
+- extendedWaitUntil:
+    visible: 'Home'
     timeout: 10000
-- wait: 1000
 
 # Add multiple items enthusiastically
 - tapOn:
     id: "add-to-cart-1"
-- wait: 300
 
 - tapOn:
     id: "add-to-cart-2"
-- wait: 300
 
 # Scroll and add more
 - swipe:
     direction: DOWN
     duration: 800
-- wait: 1000
 
 - tapOn:
     id: "add-to-cart-4"
     optional: true
-- wait: 500
 
 - tapOn:
     id: "add-to-cart-5"
     optional: true
-- wait: 500
 
 # Go to checkout
 - tapOn:
@@ -46,14 +40,12 @@ tags:
 
 # Look at checkout page
 - assertVisible: "Checkout"
-- wait: 3000  # User considering purchase
 
 # Scroll to see total
 - scrollUntilVisible:
     element: "Place Order"
     direction: DOWN
     timeout: 5000
-- wait: 2000  # Sticker shock
 
 # Try coupon
 - scrollUntilVisible:
@@ -62,17 +54,14 @@ tags:
     timeout: 5000
 - tapOn: "Enter code (try SAVE10)"
 - inputText: "DISCOUNT"  # Wrong code
-- wait: 1500
 
 # Abandon cart - go back
 - tapOn: "Home"
 - waitForAnimationToEnd
-- wait: 1000
 
 # Browse a bit more then leave
 - swipe:
     direction: DOWN
     duration: 1000
-- wait: 2000
 
 - pressKey: Home

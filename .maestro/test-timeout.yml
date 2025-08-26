@@ -1,0 +1,6 @@
+appId: com.sergical.skipline
+---
+- launchApp
+- assertVisible:
+    text: "Home"
+    timeout: 10000

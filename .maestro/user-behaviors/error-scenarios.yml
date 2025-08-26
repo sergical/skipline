@@ -10,22 +10,18 @@ tags:
 
 # Network error simulation - try to load without network
 - toggleAirplaneMode  # Turn on airplane mode
-- wait: 2000
 
 # Try to interact while offline
 - tapOn:
     id: "add-to-cart-1"
     optional: true
-- wait: 1000
 
 - tapOn:
     id: "cart-button"
     optional: true
-- wait: 2000
 
 # Restore network
 - toggleAirplaneMode  # Turn off airplane mode
-- wait: 3000
 
 # Rapid repeated actions (potential race conditions)
 - repeat:
@@ -35,7 +31,6 @@ tags:
           id: "add-to-cart-1"
           optional: true
           retryTapIfNoChange: false
-      - wait: 100
 
 # Invalid input scenarios
 - tapOn:
@@ -45,12 +40,10 @@ tags:
 # Try invalid coupon codes
 - tapOn: "Enter code (try SAVE10)"
 - inputText: "INVALID!!!CODE###"
-- wait: 1000
 - eraseText: 20
 
 # Very long coupon code
 - inputText: "VERYLONGCOUPONCODETHATEXCEEDSNORMALLENGTH123456789"
-- wait: 1000
 
 # Try to checkout with invalid state
 - scrollUntilVisible:
@@ -65,11 +58,9 @@ tags:
       - tapOn: 
           text: "Place Order"
           optional: true
-      - wait: 200
 
 # App state recovery test
 - killApp
-- wait: 1000
 - launchApp
 - waitForAnimationToEnd
 
@@ -79,7 +70,5 @@ tags:
     commands:
       - tapOn: "Home"
         optional: true
-      - wait: 100
       - tapOn: "Explore"
         optional: true
-      - wait: 100

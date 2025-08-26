@@ -9,8 +9,8 @@ tags:
 - waitForAnimationToEnd
 
 # Rapid navigation and interaction
-- assertVisible: 
-    text: 'Home'
+- extendedWaitUntil:
+    visible: 'Home'
     timeout: 10000
 
 # Add and remove items rapidly
@@ -29,7 +29,6 @@ tags:
       - tapOn:
           id: "cart-button"
       - waitForAnimationToEnd
-      - wait: 500
       
       # Go back
       - tapOn: "Home"
@@ -59,9 +58,7 @@ tags:
 
 # Navigate between tabs quickly
 - tapOn: "Explore"
-- wait: 300
 - tapOn: "Home"
-- wait: 300
 
 # Final checkout with multiple actions
 - tapOn:
@@ -71,10 +68,8 @@ tags:
 # Try multiple coupon codes
 - tapOn: "Enter code (try SAVE10)"
 - inputText: "BLACKFRIDAY"
-- wait: 500
 - eraseText: 11
 - inputText: "SAVE10"
-- wait: 500
 
 # Complete purchase
 - scrollUntilVisible:

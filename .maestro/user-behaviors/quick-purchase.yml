@@ -9,14 +9,13 @@ tags:
 - waitForAnimationToEnd
 
 # Wait for products
-- assertVisible: 
-    text: 'Home'
+- extendedWaitUntil:
+    visible: 'Home'
     timeout: 10000
 
 # Quick decision - buy first item
 - tapOn:
     id: "add-to-cart-1"
-- wait: 200
 
 # Immediately go to checkout
 - tapOn:
@@ -25,7 +24,6 @@ tags:
 
 # Quick checkout
 - assertVisible: "Checkout"
-- wait: 500
 
 # Place order without coupon
 - scrollUntilVisible:
@@ -38,7 +36,6 @@ tags:
 # Confirmation
 - waitForAnimationToEnd
 - assertVisible: "Thank You!"
-- wait: 1000
 
 # Done
 - pressKey: Home

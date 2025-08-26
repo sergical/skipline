@@ -9,22 +9,19 @@ tags:
 - waitForAnimationToEnd
 
 # Wait for products
-- assertVisible: 
-    text: 'Home'
+- extendedWaitUntil:
+    visible: 'Home'
     timeout: 10000
 
 # Browse carefully, looking at prices
-- wait: 2000  # Examining first products
 
 - swipe:
     direction: DOWN
     duration: 2000  # Slow, careful scroll
-- wait: 3000  # Comparing prices
 
 - swipe:
     direction: UP
     duration: 1500
-- wait: 2000
 
 # Add cheapest items (assuming Portable Charger and Water Bottle are cheaper)
 - swipe:
@@ -39,7 +36,6 @@ tags:
           text: ".*\\$[0-9]{1,2}\\.[0-9]{2}"  # Look for items under $100
           index: 0
           optional: true
-      - wait: 500
 
 # Go to checkout to check total
 - tapOn:
@@ -48,19 +44,16 @@ tags:
 
 # Check total
 - assertVisible: "Checkout"
-- wait: 2000
 
 # Definitely use coupon
 - tapOn: "Enter code (try SAVE10)"
 - inputText: "SAVE10"
-- wait: 1500  # Waiting for discount to apply
 
 # Check new total
 - scrollUntilVisible:
     element: "Place Order"
     direction: DOWN
     timeout: 5000
-- wait: 2000  # Reviewing discounted price
 
 # Satisfied with discount, complete purchase
 - tapOn: "Place Order"
@@ -68,6 +61,5 @@ tags:
 # Confirmation
 - waitForAnimationToEnd
 - assertVisible: "Thank You!"
-- wait: 2000
 
 - tapOn: "Continue Shopping"
