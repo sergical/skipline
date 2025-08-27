@@ -24,9 +24,12 @@ Sentry.init({
   // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
   sendDefaultPii: true,
   enableUserInteractionTracing: true,
+  // Enable distributed tracing
   tracesSampleRate: 1.0, // adjust this in production to lower rates
+  tracePropagationTargets: ['localhost', 'skipline-backend.onrender.com'],
+  // Enable profiling
   profilesSampleRate: 1.0, // adjust this in production to lower rates
-
+  
   // Configure Session Replay
   replaysSessionSampleRate: 1, // adjust this in production to lower rates
   replaysOnErrorSampleRate: 1,
