@@ -5,11 +5,7 @@ from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-# Use the directory where main.py is located to find .env
-import pathlib
-backend_dir = pathlib.Path(__file__).parent.parent
-load_dotenv(backend_dir / ".env")
+load_dotenv()
 
 import sentry_sdk
 from sentry_sdk.integrations.fastapi import FastApiIntegration
