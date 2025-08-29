@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import Animated, { 
-  useAnimatedStyle, 
-  useSharedValue, 
+import React, { useEffect } from "react";
+import { Text, StyleSheet } from "react-native";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
   withSpring,
-  withTiming
-} from 'react-native-reanimated';
+  withTiming,
+} from "react-native-reanimated";
 
 type Props = {
   count: number;
@@ -23,7 +23,7 @@ export function CartBadge({ count }: Props) {
       opacity.value = withTiming(0, { duration: 200 });
       scale.value = withTiming(0, { duration: 200 });
     }
-  }, [count]);
+  }, [count, opacity, scale]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
@@ -34,27 +34,27 @@ export function CartBadge({ count }: Props) {
 
   return (
     <Animated.View style={[styles.badge, animatedStyle]} testID="cart-badge">
-      <Text style={styles.text}>{count > 99 ? '99+' : count}</Text>
+      <Text style={styles.text}>{count > 99 ? "99+" : count}</Text>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
   badge: {
-    position: 'absolute',
+    position: "absolute",
     top: -5,
     right: -10,
-    backgroundColor: '#FF6B5A',
+    backgroundColor: "#FF6B5A",
     borderRadius: 10,
     minWidth: 20,
     height: 20,
     paddingHorizontal: 5,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   text: {
-    color: 'white',
+    color: "white",
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: "700",
   },
 });

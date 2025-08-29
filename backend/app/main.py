@@ -44,7 +44,9 @@ def init_sentry():
             "enable_logs": enable_logs,
         },
         integrations=[
-            FastApiIntegration(transaction_style="endpoint"),
+            FastApiIntegration(
+                transaction_style="endpoint",
+            ),
             SqlalchemyIntegration(),
         ],
     )
