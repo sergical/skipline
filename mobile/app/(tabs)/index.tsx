@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import {
   ActivityIndicator,
   FlatList,
   StyleSheet,
   RefreshControl,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 
 import Animated, { FadeInDown } from "react-native-reanimated";
 
@@ -22,6 +23,24 @@ function HomeScreen() {
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const { add } = useCart();
   const backgroundColor = useThemeColor({}, "background");
+  
+  // Home screen context management
+  useFocusEffect(
+    useCallback(() => {
+      // Set context for home screen
+      Sentry.withScope((scope) => {
+        scope.setTag("screen", "home");
+        scope.setTag("flow_type", "catalog_browse");
+        scope.setContext("home_screen", {
+          screen_entry_time: Date.now()
+        });
+      });
+
+      if (!products) {
+        loadProducts();
+      }
+    }, [products])
+  );
 
   const loadProducts = async (isRefresh = false) => {
     if (isRefresh) {
@@ -30,16 +49,37 @@ function HomeScreen() {
       setLoading(true);
     }
 
-    // Artificial delay for Sentry performance monitoring
-    if (ENABLE_ARTIFICIAL_DELAYS) {
-      await new Promise((resolve) =>
-        setTimeout(resolve, 800 + Math.random() * 1200)
-      );
-    }
-
     try {
-      const data = await apiGet<Product[]>("/api/v1/catalog?include=inventory");
-      setProducts(data);
+      await Sentry.startSpan({
+        name: "Load Home Catalog",
+        op: "http.client",
+        attributes: {
+          "api.version": "v1",
+          "api.endpoint": "/api/v1/catalog",
+          "is_refresh": isRefresh,
+          "includes_inventory": true
+        }
+      }, async (span) => {
+        // Artificial delay for Sentry performance monitoring
+        if (ENABLE_ARTIFICIAL_DELAYS) {
+          await new Promise((resolve) =>
+            setTimeout(resolve, 800 + Math.random() * 1200)
+          );
+        }
+
+        const data = await apiGet<Product[]>("/api/v1/catalog?include=inventory");
+        setProducts(data);
+        
+        span.setAttributes({
+          "catalog.products_loaded": data.length,
+          "catalog.load_success": true,
+          "catalog.has_inventory": data.some(p => p.inventory !== undefined),
+          "business.products_available": data.length,
+          "business.products_in_stock": data.filter(p => (p.inventory || 0) > 0).length
+        });
+        
+        return data;
+      });
     } catch (error) {
       Sentry.captureException(error);
       throw error;
@@ -50,9 +90,28 @@ function HomeScreen() {
     }
   };
 
+  // Track TTFD completion for home screen
   useEffect(() => {
-    loadProducts();
-  }, []);
+    if (loaded && products) {
+      Sentry.startSpan({
+        name: "Home Screen TTFD",
+        op: "ui.load.ttfd",
+        attributes: {
+          "screen": "home",
+          "screen_fully_loaded": true,
+          "catalog_loaded": true,
+          "products_count": products.length,
+          "display_complete_time": Date.now()
+        }
+      }, (span) => {
+        span.setAttributes({
+          "ui.screen_loaded": true,
+          "ui.ttfd_recorded": true
+        });
+        return span;
+      });
+    }
+  }, [loaded, products]);
 
   if (loading || !products) {
     return (
