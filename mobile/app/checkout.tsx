@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Alert,
   ScrollView,
@@ -28,7 +28,6 @@ import {
 import { useCart } from "../state/useCart";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import * as Sentry from "@sentry/react-native";
-import { useCallback } from "react";
 
 function CheckoutScreen() {
   const router = useRouter();
@@ -40,7 +39,7 @@ function CheckoutScreen() {
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [loaded, setLoaded] = useState(false);
   const buttonScale = useSharedValue(1);
-  
+
   // Checkout flow transaction management
   const checkoutTransactionRef = useRef<any>(null);
   const catalogSpanRef = useRef<any>(null);
@@ -69,9 +68,9 @@ function CheckoutScreen() {
         scope.setTag("flow_type", "purchase");
         scope.setContext("checkout_flow", {
           cart_items_count: items.length,
-          screen_entry_time: Date.now()
+          screen_entry_time: Date.now(),
         });
-        
+
         // Store reference for later use
         checkoutTransactionRef.current = scope;
       });
@@ -82,7 +81,7 @@ function CheckoutScreen() {
         // Clean up on screen exit
         checkoutTransactionRef.current = null;
       };
-    }, [items.length])
+    }, [items.length]),
   );
 
   async function loadProducts() {
@@ -90,32 +89,35 @@ function CheckoutScreen() {
       setLoadingProducts(true);
 
       // Start span for catalog loading
-      await Sentry.startSpan({
-        name: "Load Product Catalog",
-        op: "http.client",
-        attributes: {
-          "api.version": "v1",
-          "api.endpoint": "/api/v1/catalog"
-        }
-      }, async (span) => {
-        // Artificial delay for performance monitoring
-        if (ENABLE_ARTIFICIAL_DELAYS) {
-          await new Promise((resolve) =>
-            setTimeout(resolve, 500 + Math.random() * 800),
-          );
-        }
+      await Sentry.startSpan(
+        {
+          name: "Load Product Catalog",
+          op: "http.client",
+          attributes: {
+            "api.version": "v1",
+            "api.endpoint": "/api/v1/catalog",
+          },
+        },
+        async (span) => {
+          // Artificial delay for performance monitoring
+          if (ENABLE_ARTIFICIAL_DELAYS) {
+            await new Promise((resolve) =>
+              setTimeout(resolve, 500 + Math.random() * 800),
+            );
+          }
 
-        const data = await apiGet<Product[]>("/api/v1/catalog");
-        setProducts(data);
-        
-        // Add catalog metrics
-        span.setAttributes({
-          "catalog.products_loaded": data.length,
-          "catalog.load_success": true
-        });
-        
-        return data;
-      });
+          const data = await apiGet<Product[]>("/api/v1/catalog");
+          setProducts(data);
+
+          // Add catalog metrics
+          span.setAttributes({
+            "catalog.products_loaded": data.length,
+            "catalog.load_success": true,
+          });
+
+          return data;
+        },
+      );
     } catch (error) {
       Sentry.captureException(error);
       throw error;
@@ -144,35 +146,12 @@ function CheckoutScreen() {
           cart_value_cents: subtotal,
           item_count: items.length,
           unique_products: cartProducts.length,
-          average_item_value_cents: items.length > 0 ? Math.round(subtotal / items.length) : 0
+          average_item_value_cents:
+            items.length > 0 ? Math.round(subtotal / items.length) : 0,
         });
       });
     }
   }, [subtotal, items.length, cartProducts.length, products.length]);
-
-  // Track TTFD completion
-  useEffect(() => {
-    if (loaded) {
-      Sentry.startSpan({
-        name: "Checkout Screen TTFD",
-        op: "ui.load.ttfd",
-        attributes: {
-          "screen": "checkout",
-          "screen_fully_loaded": true,
-          "catalog_loaded": true,
-          "products_count": products.length,
-          "display_complete_time": Date.now()
-        }
-      }, (span) => {
-        // TTFD span completes immediately since screen is loaded
-        span.setAttributes({
-          "ui.screen_loaded": true,
-          "ui.ttfd_recorded": true
-        });
-        return span;
-      });
-    }
-  }, [loaded, products.length]);
 
   const buttonAnimatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: buttonScale.value }],
@@ -183,102 +162,89 @@ function CheckoutScreen() {
     buttonScale.value = withTiming(0.97, { duration: 150 });
 
     try {
-      await Sentry.startSpan({
-        name: "Process Checkout",
-        op: "checkout.process",
-        attributes: {
-          "checkout_start_time": Date.now(),
-          "order_value_cents": subtotal,
-          "items_count": items.length,
-          "has_coupon": !!coupon,
-          "customer_email": email
-        }
-      }, async (checkoutSpan) => {
-        // Artificial processing delay for performance monitoring
-        if (ENABLE_ARTIFICIAL_DELAYS) {
-          await Sentry.startSpan({
-            name: "Artificial Processing Delay",
-            op: "checkout.artificial_delay"
-          }, async () => {
-            // Heavy computation to cause frame drops
-            const start = Date.now();
-            void start; // Keep start reference for potential future use
-            let result = 0;
-            for (let i = 0; i < 100000; i++) {
-              result += Math.sqrt(Math.random() * i);
-            }
-            void result; // Prevent unused variable warning
-
-            // Additional async delay
-            await new Promise((resolve) =>
-              setTimeout(resolve, 1000 + Math.random() * 1500),
-            );
-          });
-        }
-
-        const payload: CheckoutRequest = {
-          ...toCheckoutPayload(email),
-          coupon_code: coupon || null,
-        };
-
-        // Create API call span
-        const res = await Sentry.startSpan({
-          name: "POST /api/v1/checkout",
-          op: "http.client",
+      await Sentry.startSpan(
+        {
+          name: "Process Checkout",
+          op: "checkout.process",
           attributes: {
-            "api.version": "v1",
-            "api.endpoint": "/api/v1/checkout",
-            "payload_size": JSON.stringify(payload).length
-          }
-        }, async (apiSpan) => {
-          const response = await apiPost<CheckoutResponse>("/api/v1/checkout", payload);
-          
-          // Add success metrics
-          apiSpan.setAttributes({
-            "checkout.success": true,
-            "checkout.order_id": response.order_id,
-            "checkout.final_total_cents": response.total_cents
-          });
-          
-          return response;
-        });
-
-        checkoutSpan.setAttributes({
-          "checkout.success": true,
-          "checkout.order_id": res.order_id,
-          "checkout.conversion": true,
-          "final_outcome": "order_placed"
-        });
-        
-        clear();
-
-        // Navigate to confirmation screen
-        router.replace({
-          pathname: "/order-confirmation",
-          params: {
-            orderId: res.order_id,
-            total: (res.total_cents / 100).toFixed(2),
-            email: email,
+            checkout_start_time: Date.now(),
+            order_value_cents: subtotal,
+            items_count: items.length,
+            has_coupon: !!coupon,
+            customer_email: email,
           },
-        });
+        },
+        async (checkoutSpan) => {
+          const payload: CheckoutRequest = {
+            ...toCheckoutPayload(email),
+            coupon_code: coupon || null,
+          };
 
-        return res;
-      });
+          // Create API call span
+          const res = await Sentry.startSpan(
+            {
+              name: "POST /api/v1/checkout",
+              op: "http.client",
+              attributes: {
+                "api.version": "v1",
+                "api.endpoint": "/api/v1/checkout",
+                payload_size: JSON.stringify(payload).length,
+              },
+            },
+            async (apiSpan) => {
+              const response = await apiPost<CheckoutResponse>(
+                "/api/v1/checkout",
+                payload,
+              );
+
+              // Add success metrics
+              apiSpan.setAttributes({
+                "checkout.success": true,
+                "checkout.order_id": response.order_id,
+                "checkout.final_total_cents": response.total_cents,
+              });
+
+              return response;
+            },
+          );
+
+          checkoutSpan.setAttributes({
+            "checkout.success": true,
+            "checkout.order_id": res.order_id,
+            "checkout.conversion": true,
+            final_outcome: "order_placed",
+          });
+
+          clear();
+
+          // Navigate to confirmation screen
+          router.replace({
+            pathname: "/order-confirmation",
+            params: {
+              orderId: res.order_id,
+              total: (res.total_cents / 100).toFixed(2),
+              email: email,
+            },
+          });
+
+          return res;
+        },
+      );
     } catch (e: any) {
       // Add error context
       Sentry.withScope((scope) => {
         scope.setContext("checkout_error", {
           success: false,
           conversion: false,
-          final_outcome: "checkout_failed"
+          final_outcome: "checkout_failed",
         });
-        
+
         if (e?.response?.data?.detail) {
           const detail = e.response.data.detail;
           scope.setContext("error_detail", { api_detail: detail });
         }
       });
-      
+
       Sentry.captureException(e);
 
       // Handle different types of errors

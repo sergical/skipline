@@ -7,8 +7,11 @@
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
     "ios": "expo run:ios",
+    "eas:ios:local": "eas build --profile development --platform ios --local",
+    "eas:android:local": "eas build --profile development --platform android --local",
     "web": "expo start --web",
     "lint": "expo lint",
+    "format": "prettier --write .",
     "build:ios": "eas build --profile preview --platform ios",
     "build:android": "eas build --profile preview --platform android",
     "maestro:studio": "maestro studio"
