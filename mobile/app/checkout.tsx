@@ -99,17 +99,9 @@ function CheckoutScreen() {
           },
         },
         async (span) => {
-          // Artificial delay for performance monitoring
-          if (ENABLE_ARTIFICIAL_DELAYS) {
-            await new Promise((resolve) =>
-              setTimeout(resolve, 500 + Math.random() * 800),
-            );
-          }
-
           const data = await apiGet<Product[]>("/api/v1/catalog");
           setProducts(data);
 
-          // Add catalog metrics
           span.setAttributes({
             "catalog.products_loaded": data.length,
             "catalog.load_success": true,
@@ -180,37 +172,14 @@ function CheckoutScreen() {
             coupon_code: coupon || null,
           };
 
-          // Create API call span
-          const res = await Sentry.startSpan(
-            {
-              name: "POST /api/v1/checkout",
-              op: "http.client",
-              attributes: {
-                "api.version": "v1",
-                "api.endpoint": "/api/v1/checkout",
-                payload_size: JSON.stringify(payload).length,
-              },
-            },
-            async (apiSpan) => {
-              const response = await apiPost<CheckoutResponse>(
-                "/api/v1/checkout",
-                payload,
-              );
-
-              // Add success metrics
-              apiSpan.setAttributes({
-                "checkout.success": true,
-                "checkout.order_id": response.order_id,
-                "checkout.final_total_cents": response.total_cents,
-              });
-
-              return response;
-            },
+          const response = await apiPost<CheckoutResponse>(
+            "/api/v1/checkout",
+            payload,
           );
 
           checkoutSpan.setAttributes({
             "checkout.success": true,
-            "checkout.order_id": res.order_id,
+            "checkout.order_id": response.order_id,
             "checkout.conversion": true,
             final_outcome: "order_placed",
           });
@@ -221,13 +190,13 @@ function CheckoutScreen() {
           router.replace({
             pathname: "/order-confirmation",
             params: {
-              orderId: res.order_id,
-              total: (res.total_cents / 100).toFixed(2),
+              orderId: response.order_id,
+              total: (response.total_cents / 100).toFixed(2),
               email: email,
             },
           });
 
-          return res;
+          return response;
         },
       );
     } catch (e: any) {

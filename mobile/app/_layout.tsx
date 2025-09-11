@@ -24,6 +24,7 @@ Sentry.init({
   dsn: SENTRY_DSN,
   debug: true,
   tracesSampleRate: 1.0,
+  tracePropagationTargets: [/localhost:\\d+/, /127.0.0.1/, /myapp.com/],
 
   profilesSampleRate: 1.0,
 

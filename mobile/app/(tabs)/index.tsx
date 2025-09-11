@@ -55,8 +55,8 @@ function HomeScreen() {
           name: "Load Home Catalog",
           op: "http.client",
           attributes: {
-            "api.version": "v1",
-            "api.endpoint": "/api/v1/catalog",
+            "api.version": "v2",
+            "api.endpoint": "/api/v2/catalog",
             is_refresh: isRefresh,
             includes_inventory: true,
           },
@@ -70,7 +70,7 @@ function HomeScreen() {
           }
 
           const data = await apiGet<Product[]>(
-            "/api/v1/catalog?include=inventory",
+            "/api/v2/catalog?include=inventory",
           );
           setProducts(data);
 
